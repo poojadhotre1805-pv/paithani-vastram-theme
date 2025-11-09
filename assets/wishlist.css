@@ -1,0 +1,23 @@
+.wishlist-btn {
+  background: #fff;
+  border: 1px solid #dedede;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.wishlist-btn .wishlist-heart {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.wishlist-btn.active {
+  border-color: #e53935;
+  color: #e53935;
+  background: rgba(229, 57, 53, 0.05);
+}

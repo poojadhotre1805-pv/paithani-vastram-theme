@@ -1,0 +1,564 @@
+{% doc %}
+  @prompt
+    Create a wishlist heart icon that appears next to the add to cart button. The wishlist icon should be clickable and toggle between filled and unfilled states when clicked. Include hover effects and make it visually appealing alongside the existing add to cart button.
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-wishlist-container-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: {{ block.settings.spacing }}px;
+    justify-content: {{ block.settings.alignment }};
+    margin: {{ block.settings.margin_top }}px 0 {{ block.settings.margin_bottom }}px 0;
+  }
+
+  .ai-wishlist-button-{{ ai_gen_id }} {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: {{ block.settings.icon_size }}px;
+    height: {{ block.settings.icon_size }}px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    padding: 0;
+  }
+
+  .ai-wishlist-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.hover_background_color }};
+    transform: scale({{ block.settings.hover_scale }});
+  }
+
+  .ai-wishlist-button-{{ ai_gen_id }}:focus {
+    outline: 2px solid {{ block.settings.focus_color }};
+    outline-offset: 2px;
+  }
+
+  .ai-wishlist-icon-{{ ai_gen_id }} {
+    width: calc({{ block.settings.icon_size }}px * 0.6);
+    height: calc({{ block.settings.icon_size }}px * 0.6);
+    transition: all 0.3s ease;fill: {{ block.settings.unfilled_color }};
+    stroke: {{ block.settings.border_color }};
+    stroke-width: {{ block.settings.border_width }};
+  }
+
+  .ai-wishlist-button-{{ ai_gen_id }}.filled .ai-wishlist-icon-{{ ai_gen_id }} {
+    fill: {{ block.settings.filled_color }};
+    stroke: {{ block.settings.filled_border_color }};
+  }
+
+  .ai-wishlist-button-{{ ai_gen_id }}:hover .ai-wishlist-icon-{{ ai_gen_id }} {
+    fill: {{ block.settings.hover_icon_color }};
+  }
+
+  .ai-wishlist-button-{{ ai_gen_id }}.filled:hover .ai-wishlist-icon-{{ ai_gen_id }} {
+    fill: {{ block.settings.filled_hover_color }};
+  }
+
+  .ai-wishlist-tooltip-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: {{ block.settings.tooltip_background }};
+    color: {{ block.settings.tooltip_text_color }};
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .ai-wishlist-tooltip-{{ ai_gen_id }}::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: {{ block.settings.tooltip_background }};
+  }
+
+  .ai-wishlist-button-{{ ai_gen_id }}:hover .ai-wishlist-tooltip-{{ ai_gen_id }} {
+    opacity: 1;
+    visibility: visible;}
+
+  .ai-wishlist-add-to-cart-{{ ai_gen_id }} {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    background-color: {{ block.settings.cart_button_color }};
+    color: {{ block.settings.cart_button_text_color }};
+    border: {{ block.settings.cart_button_border_width }}px solid {{ block.settings.cart_button_border_color }};
+    border-radius: {{ block.settings.cart_button_radius }}px;
+    font-size: {{ block.settings.cart_button_font_size }}px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: {{ block.settings.icon_size }}px;
+  }
+
+  .ai-wishlist-add-to-cart-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.cart_button_hover_color }};
+    color: {{ block.settings.cart_button_hover_text_color }};
+    transform: translateY(-1px);
+  }
+
+  .ai-wishlist-add-to-cart-{{ ai_gen_id }}:focus {
+    outline: 2px solid {{ block.settings.focus_color }};
+    outline-offset: 2px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-wishlist-container-{{ ai_gen_id }} {
+      gap: {{ block.settings.spacing | times: 0.8 }}px;
+    }
+
+    .ai-wishlist-button-{{ ai_gen_id }} {
+      width: {{ block.settings.icon_size | times: 0.9 }}px;
+      height: {{ block.settings.icon_size | times: 0.9 }}px;
+    }
+
+    .ai-wishlist-icon-{{ ai_gen_id }} {
+      width: calc({{ block.settings.icon_size | times: 0.9 }}px * 0.6);
+      height: calc({{ block.settings.icon_size | times: 0.9 }}px * 0.6);
+    }
+
+    .ai-wishlist-add-to-cart-{{ ai_gen_id }} {
+      padding: 10px 20px;
+      font-size: {{ block.settings.cart_button_font_size | times: 0.9 }}px;
+      min-height: {{ block.settings.icon_size | times: 0.9 }}px;
+    }
+  }
+{% endstyle %}
+
+<wishlist-toggle-{{ ai_gen_id }}
+  class="ai-wishlist-container-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  {% if block.settings.button_order == 'wishlist_first' %}
+    <button
+      class="ai-wishlist-button-{{ ai_gen_id }}"
+      aria-label="Add to wishlist"
+      data-product-id="{{ product.id | default: '1234567890' }}"
+    >
+      <svg
+        class="ai-wishlist-icon-{{ ai_gen_id }}"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      <div class="ai-wishlist-tooltip-{{ ai_gen_id }}">
+        <span class="tooltip-add">{{ block.settings.tooltip_add_text }}</span>
+        <span class="tooltip-remove" style="display: none;">{{ block.settings.tooltip_remove_text }}</span>
+      </div>
+    </button>
+
+    <button class="ai-wishlist-add-to-cart-{{ ai_gen_id }}">
+      {{ block.settings.cart_button_text }}
+    </button>
+  {% else %}
+    <button class="ai-wishlist-add-to-cart-{{ ai_gen_id }}">
+      {{ block.settings.cart_button_text }}
+    </button>
+
+    <button
+      class="ai-wishlist-button-{{ ai_gen_id }}"
+      aria-label="Add to wishlist"
+      data-product-id="{{ product.id | default: '1234567890' }}"
+    >
+      <svg
+        class="ai-wishlist-icon-{{ ai_gen_id }}"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      </svg>
+      <div class="ai-wishlist-tooltip-{{ ai_gen_id }}">
+        <span class="tooltip-add">{{ block.settings.tooltip_add_text }}</span>
+        <span class="tooltip-remove" style="display: none;">{{ block.settings.tooltip_remove_text }}</span>
+      </div>
+    </button>
+  {% endif %}
+</wishlist-toggle-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class WishlistToggle{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.wishlistKey = 'shopify_wishlist';}
+
+      connectedCallback() {
+        this.button = this.querySelector('.ai-wishlist-button-{{ ai_gen_id }}');
+        this.tooltipAdd = this.querySelector('.tooltip-add');
+        this.tooltipRemove = this.querySelector('.tooltip-remove');
+        
+        if (this.button) {
+          this.productId = this.button.dataset.productId;
+          this.setupEventListeners();
+          this.updateButtonState();
+        }
+      }
+
+      setupEventListeners() {
+        this.button.addEventListener('click', this.handleWishlistToggle.bind(this));
+      }
+
+      handleWishlistToggle(event) {
+        event.preventDefault();
+        
+        const wishlist = this.getWishlist();
+        const isInWishlist = wishlist.includes(this.productId);
+        
+        if (isInWishlist) {
+          this.removeFromWishlist(this.productId);
+        } else {
+          this.addToWishlist(this.productId);
+        }
+        
+        this.updateButtonState();
+        this.dispatchWishlistEvent(isInWishlist ? 'removed' : 'added');
+      }
+
+      getWishlist() {
+        try {
+          const wishlist = localStorage.getItem(this.wishlistKey);
+          return wishlist ? JSON.parse(wishlist) : [];
+        } catch (error) {
+          console.error('Error reading wishlist:', error);
+          return [];
+        }
+      }
+
+      addToWishlist(productId) {
+        try {
+          const wishlist = this.getWishlist();
+          if (!wishlist.includes(productId)) {
+            wishlist.push(productId);
+            localStorage.setItem(this.wishlistKey, JSON.stringify(wishlist));}
+        } catch (error) {
+          console.error('Error adding to wishlist:', error);
+        }
+      }
+
+      removeFromWishlist(productId) {
+        try {
+          const wishlist = this.getWishlist();
+          const updatedWishlist = wishlist.filter(id => id !== productId);
+          localStorage.setItem(this.wishlistKey, JSON.stringify(updatedWishlist));
+        } catch (error) {
+          console.error('Error removing from wishlist:', error);
+        }
+      }
+
+      updateButtonState() {
+        const wishlist = this.getWishlist();
+        const isInWishlist = wishlist.includes(this.productId);
+        if (isInWishlist) {
+          this.button.classList.add('filled');
+          this.button.setAttribute('aria-label', 'Remove from wishlist');
+          if (this.tooltipAdd && this.tooltipRemove) {
+            this.tooltipAdd.style.display = 'none';
+            this.tooltipRemove.style.display = 'inline';
+          }
+        } else {
+          this.button.classList.remove('filled');
+          this.button.setAttribute('aria-label', 'Add to wishlist');
+          if (this.tooltipAdd && this.tooltipRemove) {
+            this.tooltipAdd.style.display = 'inline';
+            this.tooltipRemove.style.display = 'none';
+          }
+        }
+      }
+
+      dispatchWishlistEvent(action) {
+        const event = new CustomEvent('wishlist:toggle', {
+          detail: {
+            productId: this.productId,
+            action: action,
+            wishlistCount: this.getWishlist().length
+          },
+          bubbles: true
+        });
+        this.dispatchEvent(event);
+      }
+    }
+
+    customElements.define('wishlist-toggle-{{ ai_gen_id }}', WishlistToggle{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Wishlist heart icon",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "button_order",
+      "label": "Button order",
+      "options": [
+        {
+          "value": "wishlist_first",
+          "label": "Wishlist first"
+        },
+        {
+          "value": "cart_first",
+          "label": "Cart first"
+        }
+      ],
+      "default": "cart_first"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Right"
+        }
+      ],
+      "default": "flex-start"
+    },
+    {
+      "type": "range",
+      "id": "spacing",
+      "min": 4,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Spacing between buttons",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Top margin",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom margin",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Wishlist icon"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "min": 32,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "label": "Icon size",
+      "default": 44
+    },
+    {
+      "type": "color",
+      "id": "unfilled_color",
+      "label": "Unfilled color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "filled_color",
+      "label": "Filled color",
+      "default": "#ff4757"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "filled_border_color",
+      "label": "Filled border color",
+      "default": "#ff4757"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "label": "Border width",
+      "default": 2
+    },
+    {
+      "type": "header",
+      "content": "Hover effects"
+    },
+    {
+      "type": "color",
+      "id": "hover_background_color",
+      "label": "Hover background color",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "color",
+      "id": "hover_icon_color",
+      "label": "Hover icon color",
+      "default": "#ff6b7a"
+    },
+    {
+      "type": "color",
+      "id": "filled_hover_color",
+      "label": "Filled hover color",
+      "default": "#ff3742"
+    },
+    {
+      "type": "range",
+      "id": "hover_scale",
+      "min": 1.0,
+      "max": 1.2,
+      "step": 0.1,
+      "label": "Hover scale",
+      "default": 1.1
+    },
+    {
+      "type": "color",
+      "id": "focus_color",
+      "label": "Focus outline color",
+      "default": "#005fcc"
+    },
+    {
+      "type": "header",
+      "content": "Tooltip"
+    },
+    {
+      "type": "text",
+      "id": "tooltip_add_text",
+      "label": "Add to wishlist text",
+      "default": "Add to wishlist"
+    },
+    {
+      "type": "text",
+      "id": "tooltip_remove_text",
+      "label": "Remove from wishlist text",
+      "default": "Remove from wishlist"
+    },
+    {
+      "type": "color",
+      "id": "tooltip_background",
+      "label": "Tooltip background",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "tooltip_text_color",
+      "label": "Tooltip text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Add to cart button"
+    },
+    {
+      "type": "text",
+      "id": "cart_button_text",
+      "label": "Button text",
+      "default": "Add to cart"
+    },
+    {
+      "type": "color",
+      "id": "cart_button_color",
+      "label": "Background color",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "cart_button_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "cart_button_hover_color",
+      "label": "Hover background color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "cart_button_hover_text_color",
+      "label": "Hover text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "cart_button_border_color",
+      "label": "Border color",
+      "default": "#121212"
+    },
+    {
+      "type": "range",
+      "id": "cart_button_border_width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "label": "Border width",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "cart_button_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "cart_button_font_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    }
+  ],
+  "presets": [
+    {
+      "name": "Wishlist heart icon"
+    }
+  ]
+}
+{% endschema %}

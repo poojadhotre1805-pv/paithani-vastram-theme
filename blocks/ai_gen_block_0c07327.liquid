@@ -1,0 +1,281 @@
+{% doc %}
+  @prompt
+    Create a responsive logo component that maintains consistent size and prominence across desktop and mobile views. The logo should be properly scaled for mobile devices to match the visual impact of the desktop version, ensuring good readability and brand presence on all screen sizes.
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-logo-container-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: {{ block.settings.alignment }};
+    padding: {{ block.settings.padding_desktop }}px;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-logo-wrapper-{{ ai_gen_id }} {
+    display: inline-block;
+    line-height: 0;
+    max-width: 100%;
+  }
+
+  .ai-logo-image-{{ ai_gen_id }} {
+    width: {{ block.settings.logo_width_desktop }}px;
+    height: auto;
+    max-width: 100%;
+    display: block;
+  }
+
+  .ai-logo-placeholder-{{ ai_gen_id }} {
+    width: {{ block.settings.logo_width_desktop }}px;
+    height: {{ block.settings.logo_height_desktop }}px;
+    max-width: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    position: relative;
+  }
+
+  .ai-logo-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .ai-logo-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .ai-logo-link-{{ ai_gen_id }} {
+    display: inline-block;
+    line-height: 0;
+    text-decoration: none;
+    max-width: 100%;
+  }
+
+  .ai-logo-link-{{ ai_gen_id }}:focus {
+    outline:2px solid {{ block.settings.focus_color }};outline-offset: 2px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-logo-container-{{ ai_gen_id }} {
+      padding: {{ block.settings.padding_mobile }}px;
+    }
+
+    .ai-logo-image-{{ ai_gen_id }} {
+      width: {{ block.settings.logo_width_mobile }}px;
+    }
+
+    .ai-logo-placeholder-{{ ai_gen_id }} {
+      width: {{ block.settings.logo_width_mobile }}px;
+      height: {{ block.settings.logo_height_mobile }}px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .ai-logo-container-{{ ai_gen_id }} {
+      padding: {{ block.settings.padding_mobile | times: 0.75 }}px;
+    }
+
+    .ai-logo-image-{{ ai_gen_id }} {
+      width: {{ block.settings.logo_width_mobile | times: 0.9 }}px;
+    }
+
+    .ai-logo-placeholder-{{ ai_gen_id }} {
+      width: {{ block.settings.logo_width_mobile | times: 0.9 }}px;
+      height: {{ block.settings.logo_height_mobile | times: 0.9 }}px;
+    }
+
+    .ai-logo-empty-state-{{ ai_gen_id }} {
+      font-size: 10px;
+      bottom: 4px;
+    }
+  }
+{% endstyle %}<div
+  class="ai-logo-container-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-logo-wrapper-{{ ai_gen_id }}">
+    {% if block.settings.logo %}
+      {% if block.settings.logo_link != blank %}
+        <a
+          href="{{ block.settings.logo_link }}"
+          class="ai-logo-link-{{ ai_gen_id }}"
+          aria-label="{{ block.settings.logo_alt_text | default: 'Homepage' }}"
+        >
+          <img
+            src="{{ block.settings.logo | image_url: width: 800 }}"
+            alt="{{ block.settings.logo_alt_text | escape }}"
+            class="ai-logo-image-{{ ai_gen_id }}"
+            width="{{ block.settings.logo.width }}"
+            height="{{ block.settings.logo.height }}"
+            loading="lazy">
+        </a>
+      {% else %}
+        <img
+          src="{{ block.settings.logo | image_url: width: 800 }}"
+          alt="{{ block.settings.logo_alt_text | escape }}"
+          class="ai-logo-image-{{ ai_gen_id }}"
+          width="{{ block.settings.logo.width }}"
+          height="{{ block.settings.logo.height }}"
+          loading="lazy"
+        >
+      {% endif %}
+    {% else %}
+      <div class="ai-logo-placeholder-{{ ai_gen_id }}">
+        {{ 'image' | placeholder_svg_tag }}
+        <div class="ai-logo-empty-state-{{ ai_gen_id }}">
+          Add your logo
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Responsive logo",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image"
+    },
+    {
+      "type": "text",
+      "id": "logo_alt_text",
+      "label": "Logo alt text",
+      "default": "Company logo"
+    },
+    {
+      "type": "url",
+      "id": "logo_link",
+      "label": "Logo link"
+    },
+    {
+      "type": "header",
+      "content": "Desktop sizing"
+    },
+    {
+      "type": "range",
+      "id": "logo_width_desktop",
+      "min": 50,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "label": "Logo width",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "logo_height_desktop",
+      "min": 30,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Placeholder height",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_desktop",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Mobile sizing"
+    },
+    {
+      "type": "range",
+      "id": "logo_width_mobile",
+      "min": 40,
+      "max": 250,
+      "step": 5,
+      "unit": "px",
+      "label": "Logo width",
+      "default": 150
+    },
+    {
+      "type": "range",
+      "id": "logo_height_mobile",
+      "min": 25,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Placeholder height",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_mobile",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "focus_color",
+      "label": "Focus outline color",
+      "default": "#005fcc"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Responsive logo"
+    }
+  ]
+}
+{% endschema %}

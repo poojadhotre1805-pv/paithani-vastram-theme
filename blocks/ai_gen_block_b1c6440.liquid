@@ -1,0 +1,363 @@
+{% doc %}
+  @prompt
+    Create a responsive logo component that maintains consistent size and prominence across desktop and mobile views. The logo should be properly scaled for mobile devices to match the visual impact of the desktop version, ensuring good readability and brand presence on all screen sizes., Create CSS styling to ensure logo displays consistently as a circle shape across both desktop and mobile views with proper responsive design
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-circular-logo-container-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: {{ block.settings.alignment }};
+    padding: {{ block.settings.padding_desktop }}px;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-circular-logo-wrapper-{{ ai_gen_id }} {
+    display: block;
+    line-height: 0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ai-circular-logo-wrapper-{{ ai_gen_id }}:hover {
+    transform: scale({{ block.settings.hover_scale | divided_by: 100.0 }});
+    box-shadow: 0 {{ block.settings.hover_shadow_blur }}px {{ block.settings.hover_shadow_blur | times: 2 }}px rgba(0, 0, 0, {{ block.settings.hover_shadow_opacity | divided_by: 100.0 }});
+  }
+
+  .ai-circular-logo-image-{{ ai_gen_id }} {
+    width: {{ block.settings.logo_size_desktop }}px;
+    height: {{ block.settings.logo_size_desktop }}px;
+    object-fit: cover;object-position: center;display: block;
+    border-radius: 50%;
+    border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};box-sizing: border-box;
+  }
+
+  .ai-circular-logo-placeholder-{{ ai_gen_id }} {
+    width: {{ block.settings.logo_size_desktop }}px;
+    height: {{ block.settings.logo_size_desktop }}px;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
+    border-radius: 50%;
+    box-sizing: border-box;position: relative;background-image: radial-gradient(circle at center, #e8e8e8 2px, transparent 2px);
+    background-size: 20px 20px;}
+
+  .ai-circular-logo-placeholder-{{ ai_gen_id }} svg {
+    width: {{ block.settings.logo_size_desktop | divided_by: 3 }}px;
+    height: {{ block.settings.logo_size_desktop | divided_by: 3 }}px;
+    opacity: 0.4;
+    color: #999;
+  }
+
+  .ai-circular-logo-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;white-space: nowrap;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-circular-logo-container-{{ ai_gen_id }} {
+      padding: {{ block.settings.padding_mobile }}px;justify-content: {{ block.settings.alignment_mobile }};
+    }
+
+    .ai-circular-logo-image-{{ ai_gen_id }} {
+      width: {{ block.settings.logo_size_mobile }}px;
+      height: {{ block.settings.logo_size_mobile }}px;
+    }
+
+    .ai-circular-logo-placeholder-{{ ai_gen_id }} {
+      width: {{ block.settings.logo_size_mobile }}px;
+      height: {{ block.settings.logo_size_mobile }}px;
+    }
+
+    .ai-circular-logo-placeholder-{{ ai_gen_id }} svg {
+      width: {{ block.settings.logo_size_mobile | divided_by: 3 }}px;
+      height: {{ block.settings.logo_size_mobile | divided_by: 3 }}px;
+    }
+
+    .ai-circular-logo-empty-state-{{ ai_gen_id }} {
+      font-size: 10px;
+      bottom: -20px;
+      padding: 1px 6px;
+    }
+  }
+
+  @media screen and (max-width: 479px) {
+    .ai-circular-logo-image-{{ ai_gen_id }} {
+      width: {{ block.settings.logo_size_mobile | times: 0.85 }}px;
+      height: {{ block.settings.logo_size_mobile | times: 0.85 }}px;
+    }
+
+    .ai-circular-logo-placeholder-{{ ai_gen_id }} {
+      width: {{ block.settings.logo_size_mobile | times: 0.85 }}px;
+      height: {{ block.settings.logo_size_mobile | times: 0.85 }}px;
+    }
+
+    .ai-circular-logo-placeholder-{{ ai_gen_id }} svg {
+      width: {{ block.settings.logo_size_mobile | times: 0.85 | divided_by: 3 }}px;
+      height: {{ block.settings.logo_size_mobile | times: 0.85 | divided_by: 3 }}px;
+    }
+  }
+
+  {% if block.settings.enable_shadow %}
+    .ai-circular-logo-image-{{ ai_gen_id }},
+    .ai-circular-logo-placeholder-{{ ai_gen_id }} {
+      box-shadow: 0 {{ block.settings.shadow_blur }}px {{ block.settings.shadow_blur | times: 2 }}px rgba(0, 0, 0, {{ block.settings.shadow_opacity | divided_by: 100.0 }});
+    }
+  {% endif %}
+{% endstyle %}<div class="ai-circular-logo-container-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if block.settings.logo_link %}
+    <a href="{{ block.settings.logo_link }}" class="ai-circular-logo-wrapper-{{ ai_gen_id }}" aria-label="{{ block.settings.logo_alt | default: shop.name | escape }}">
+  {% else %}
+    <div class="ai-circular-logo-wrapper-{{ ai_gen_id }}">
+  {% endif %}{% if block.settings.logo_image %}
+    <img
+      src="{{ block.settings.logo_image | image_url: width: 400 }}"
+      alt="{{ block.settings.logo_alt | default: shop.name | escape }}"
+      class="ai-circular-logo-image-{{ ai_gen_id }}"
+      width="{{ block.settings.logo_image.width }}"
+      height="{{ block.settings.logo_image.height }}"
+      loading="lazy"
+    >
+  {% else %}
+    <div class="ai-circular-logo-placeholder-{{ ai_gen_id }}">
+      {{ 'image' | placeholder_svg_tag }}<div class="ai-circular-logo-empty-state-{{ ai_gen_id }}">
+        Add circular logo
+      </div>
+    </div>
+  {% endif %}
+
+  {% if block.settings.logo_link %}
+    </a>
+  {% else %}
+    </div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Circular logo",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Logo image"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_image",
+      "label": "Logo image"
+    },
+    {
+      "type": "text",
+      "id": "logo_alt",
+      "label": "Logo alt text"
+    },
+    {
+      "type": "url",
+      "id": "logo_link",
+      "label": "Logo link"
+    },
+    {
+      "type": "header",
+      "content": "Desktop sizing"
+    },
+    {
+      "type": "range",
+      "id": "logo_size_desktop",
+      "min": 60,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Logo size",
+      "default": 120
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "padding_desktop",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Mobile sizing"
+    },
+    {
+      "type": "range",
+      "id": "logo_size_mobile",
+      "min": 40,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Logo size",
+      "default": 80
+    },
+    {
+      "type": "select",
+      "id": "alignment_mobile",
+      "label": "Mobile alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "padding_mobile",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile padding",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Border"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 0,
+      "max": 8,
+      "step": 1,
+      "unit": "px",
+      "label": "Border width",
+      "default": 2
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "header",
+      "content": "Shadow"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_shadow",
+      "label": "Enable shadow",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "shadow_blur",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Shadow blur",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "shadow_opacity",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "%",
+      "label": "Shadow opacity",
+      "default": 15
+    },
+    {
+      "type": "header",
+      "content": "Hover effects"
+    },
+    {
+      "type": "range",
+      "id": "hover_scale",
+      "min": 95,
+      "max": 110,
+      "step": 1,
+      "unit": "%",
+      "label": "Hover scale",
+      "default": 105
+    },
+    {
+      "type": "range",
+      "id": "hover_shadow_blur",
+      "min": 0,
+      "max": 25,
+      "step": 5,
+      "unit": "px",
+      "label": "Hover shadow blur",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "hover_shadow_opacity",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "%",
+      "label": "Hover shadow opacity",
+      "default": 25
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Circular logo"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,297 @@
+{% doc %}
+  @prompt
+    Create a mobile-optimized logo component with specific controls for mobile logo size and padding. The component should allow easy adjustment of logo dimensions and spacing specifically for mobile devices, ensuring the logo is properly sized and positioned in the mobile header.
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-mobile-logo-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: {{ block.settings.alignment }};
+    padding: {{ block.settings.mobile_padding_top }}px {{ block.settings.mobile_padding_horizontal }}px {{ block.settings.mobile_padding_bottom }}px {{ block.settings.mobile_padding_horizontal }}px;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-mobile-logo-link-{{ ai_gen_id }} {
+    display: inline-block;
+    line-height: 0;
+  }
+
+  .ai-mobile-logo-image-{{ ai_gen_id }} {
+    width: {{ block.settings.mobile_logo_width }}px;
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+  }
+
+  .ai-mobile-logo-placeholder-{{ ai_gen_id }} {
+    width: {{ block.settings.mobile_logo_width }}px;
+    height: {{ block.settings.mobile_logo_height }}px;
+    max-width: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: 4px;
+  }
+
+  .ai-mobile-logo-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .ai-mobile-logo-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ai-mobile-logo-{{ ai_gen_id }} {
+      {% if block.settings.hide_on_desktop %}
+        display: none;
+      {% else %}
+        padding: {{ block.settings.desktop_padding_top }}px {{ block.settings.desktop_padding_horizontal }}px {{ block.settings.desktop_padding_bottom }}px {{ block.settings.desktop_padding_horizontal }}px;
+      {% endif %}
+    }
+
+    .ai-mobile-logo-image-{{ ai_gen_id }},
+    .ai-mobile-logo-placeholder-{{ ai_gen_id }} {
+      {% unless block.settings.hide_on_desktop %}
+        width: {{ block.settings.desktop_logo_width }}px;{% endunless %}
+    }
+
+    .ai-mobile-logo-placeholder-{{ ai_gen_id }} {
+      {% unless block.settings.hide_on_desktop %}
+        height: {{ block.settings.desktop_logo_height }}px;
+      {% endunless %}
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-mobile-logo-image-{{ ai_gen_id }} {
+      width: {{ block.settings.mobile_logo_width }}px;}
+
+    .ai-mobile-logo-placeholder-{{ ai_gen_id }} {
+      width: {{ block.settings.mobile_logo_width }}px;
+      height: {{ block.settings.mobile_logo_height }}px;
+    }
+  }
+{% endstyle %}
+
+<div
+  class="ai-mobile-logo-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  {% if block.settings.logo_link %}
+    <a
+      href="{{ block.settings.logo_link }}"
+      class="ai-mobile-logo-link-{{ ai_gen_id }}"aria-label="{{ block.settings.logo_alt_text | default: 'Logo' }}">
+  {% endif %}
+
+  {% if block.settings.logo_image %}
+    <img
+      src="{{ block.settings.logo_image | image_url: width:400 }}"
+      alt="{{ block.settings.logo_alt_text | default: block.settings.logo_image.alt | escape }}"
+      class="ai-mobile-logo-image-{{ ai_gen_id }}"
+      width="{{ block.settings.mobile_logo_width }}"
+      height="auto"
+      loading="lazy"
+    >
+  {% else %}
+    <div class="ai-mobile-logo-placeholder-{{ ai_gen_id }}">
+      {{ 'image' | placeholder_svg_tag }}
+      <div class="ai-mobile-logo-empty-state-{{ ai_gen_id }}">
+        Add your logo
+      </div>
+    </div>
+  {% endif %}
+
+  {% if block.settings.logo_link %}
+    </a>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Mobile logo",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_image",
+      "label": "Logo image"
+    },
+    {
+      "type": "text",
+      "id": "logo_alt_text",
+      "label": "Logo alt text",
+      "default": "Logo"
+    },
+    {
+      "type": "url",
+      "id": "logo_link",
+      "label": "Logo link"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Logo alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Mobile settings"
+    },
+    {
+      "type": "range",
+      "id": "mobile_logo_width",
+      "min": 50,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Logo width",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "mobile_logo_height",
+      "min": 30,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Logo height",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_top",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_bottom",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_horizontal",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Horizontal padding",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Desktop settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_on_desktop",
+      "label": "Hide on desktop",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "desktop_logo_width",
+      "min": 80,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "label": "Desktop logo width",
+      "default": 180
+    },
+    {
+      "type": "range",
+      "id": "desktop_logo_height",
+      "min": 40,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Desktop logo height",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_top",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop top padding",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_bottom",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop bottom padding",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_horizontal",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop horizontal padding",
+      "default": 32
+    }
+  ],
+  "presets": [
+    {
+      "name": "Mobile logo"
+    }
+  ],
+  "tag": null
+}
+{% endschema %}

@@ -1,0 +1,267 @@
+{% doc %}
+  @prompt
+    Create CSS styling to ensure logo displays consistently as a circle shape across both desktop and mobile views with proper responsive design
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-circular-logo-container-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: {{ block.settings.alignment }};
+    align-items: center;
+    width: 100%;
+    padding: {{ block.settings.padding }}px;
+  }
+
+  .ai-circular-logo-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: {{ block.settings.logo_size }}px;
+    height: {{ block.settings.logo_size }}px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: {{ block.settings.background_color }};
+    border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};box-shadow: 0 {{ block.settings.shadow_vertical }}px {{ block.settings.shadow_blur }}px rgba(0, 0, 0, {{ block.settings.shadow_opacity | divided_by: 100.0 }});
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-circular-logo-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: {{ block.settings.image_fit }};object-position: center;
+  }
+
+  .ai-circular-logo-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f4f4f4;
+    position: relative;
+  }
+
+  .ai-circular-logo-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    color: #cccccc;
+  }
+
+  .ai-circular-logo-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-circular-logo-container-{{ ai_gen_id }} {
+      padding: {{ block.settings.padding_mobile }}px;
+    }
+
+    .ai-circular-logo-wrapper-{{ ai_gen_id }} {
+      width: {{ block.settings.logo_size_mobile }}px;
+      height: {{ block.settings.logo_size_mobile }}px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .ai-circular-logo-wrapper-{{ ai_gen_id }} {
+      width: {{ block.settings.logo_size_mobile | times: 0.8 }}px;
+      height: {{ block.settings.logo_size_mobile | times: 0.8 }}px;
+    }
+  }
+{% endstyle %}<div class="ai-circular-logo-container-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-circular-logo-wrapper-{{ ai_gen_id }}">
+    {% if block.settings.logo_image %}
+      <img
+        src="{{ block.settings.logo_image | image_url: width:400 }}"
+        alt="{{ block.settings.logo_image.alt | default: 'Logo' | escape }}"
+        class="ai-circular-logo-image-{{ ai_gen_id }}"
+        width="{{ block.settings.logo_size }}"
+        height="{{ block.settings.logo_size }}"
+        loading="lazy">
+    {% else %}
+      <div class="ai-circular-logo-placeholder-{{ ai_gen_id }}">
+        {{ 'image' | placeholder_svg_tag }}
+        <div class="ai-circular-logo-empty-state-{{ ai_gen_id }}">
+          Add your logo
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Circular logo",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_image",
+      "label": "Logo image"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cover"
+        },
+        {
+          "value": "contain",
+          "label": "Contain"
+        },
+        {
+          "value": "fill",
+          "label": "Fill"
+        }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "logo_size",
+      "min": 50,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Logo size (desktop)",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "logo_size_mobile",
+      "min": 40,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Logo size (mobile)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding (desktop)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_mobile",
+      "min": 0,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding (mobile)",
+      "default": 15
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Border width",
+      "default": 2
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "header",
+      "content": "Shadow"
+    },
+    {
+      "type": "range",
+      "id": "shadow_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Shadow opacity",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "shadow_vertical",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Shadow vertical offset",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "shadow_blur",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Shadow blur",
+      "default": 8
+    }
+  ],
+  "presets": [
+    {
+      "name": "Circular logo"
+    }
+  ],
+  "tag": null
+}
+{% endschema %}

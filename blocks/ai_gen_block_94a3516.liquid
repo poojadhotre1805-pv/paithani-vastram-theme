@@ -1,0 +1,1129 @@
+{% doc %}
+  @prompt
+    Create a professional e-commerce product page layout like Amazon, Myntra, and Flipkart for a Semi Paithani Silk Saree. Include a compact, optimized layout that doesn't take up the full screen height, color variant swatches that dynamically change product images, prominent discount display with original price crossed out and sale price highlighted, image gallery with zoom functionality, product details in a structured format, size guide, and mobile-responsive design. Make the layout more condensed and user-friendly with clear visual hierarchy.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-product-page-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: {{ settings.type_body_font.family }}, sans-serif;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-product-container-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+
+  .ai-product-gallery-{{ ai_gen_id }} {
+    position: relative;
+  }
+
+  .ai-main-image-container-{{ ai_gen_id }} {
+    position: relative;
+    margin-bottom: 16px;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    overflow: hidden;
+    background-color: #f8f8f8;
+    aspect-ratio: 1;
+  }
+
+  .ai-main-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: zoom-in;
+    transition: transform 0.3s ease;
+  }
+
+  .ai-main-image-{{ ai_gen_id }}:hover {
+    transform: scale(1.05);
+  }
+
+  .ai-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f4f4f4;
+  }
+
+  .ai-image-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .ai-thumbnail-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .ai-thumbnail-{{ ai_gen_id }} {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  .ai-thumbnail-{{ ai_gen_id }}.active {
+    border-color: {{ block.settings.accent_color }};
+  }
+
+  .ai-thumbnail-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-product-info-{{ ai_gen_id }} {
+    padding: 0 20px;
+  }
+
+  .ai-product-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 12px;
+    line-height: 1.3;
+  }
+
+  .ai-product-rating-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .ai-stars-{{ ai_gen_id }} {
+    display: flex;
+    gap: 2px;
+  }
+
+  .ai-star-{{ ai_gen_id }} {
+    color: #ffa500;
+    font-size: 16px;
+  }
+
+  .ai-rating-text-{{ ai_gen_id }} {
+    color: #666;
+    font-size: 14px;
+  }
+
+  .ai-price-section-{{ ai_gen_id }} {
+    margin-bottom: 24px;
+  }
+
+  .ai-price-container-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .ai-sale-price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.price_size }}px;
+    font-weight: 700;
+    color: {{ block.settings.sale_price_color }};
+  }
+
+  .ai-original-price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.original_price_size }}px;
+    color: #999;
+    text-decoration: line-through;
+  }
+
+  .ai-discount-badge-{{ ai_gen_id }} {
+    background-color: {{ block.settings.discount_bg_color }};
+    color: {{ block.settings.discount_text_color }};
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .ai-tax-info-{{ ai_gen_id }} {
+    font-size: 12px;
+    color: #666;
+  }
+
+  .ai-variant-section-{{ ai_gen_id }} {
+    margin-bottom: 24px;
+  }
+
+  .ai-variant-label-{{ ai_gen_id }} {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-color-swatches-{{ ai_gen_id }} {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .ai-color-swatch-{{ ai_gen_id }} {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .ai-color-swatch-{{ ai_gen_id }}.active {
+    border-color: {{ block.settings.accent_color }};
+    transform: scale(1.1);
+  }
+
+  .ai-size-options-{{ ai_gen_id }} {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .ai-size-option-{{ ai_gen_id }} {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: {{ settings.variant_pills_radius }}px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: white;
+  }
+
+  .ai-size-option-{{ ai_gen_id }}.active {
+    border-color: {{ block.settings.accent_color }};
+    background-color: {{ block.settings.accent_color }};
+    color: white;
+  }
+
+  .ai-size-guide-link-{{ ai_gen_id }} {
+    color: {{ block.settings.accent_color }};
+    text-decoration: underline;
+    font-size: 14px;
+    cursor: pointer;
+    margin-left: 12px;
+  }
+
+  .ai-quantity-section-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .ai-quantity-label-{{ ai_gen_id }} {
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-quantity-controls-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  .ai-quantity-btn-{{ ai_gen_id }} {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-quantity-input-{{ ai_gen_id }} {
+    width: 60px;
+    height: 36px;
+    border: none;
+    text-align: center;
+    font-size: 16px;
+  }
+
+  .ai-action-buttons-{{ ai_gen_id }} {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .ai-add-to-cart-{{ ai_gen_id }} {
+    flex: 1;
+    padding: 16px 24px;
+    background-color: {{ block.settings.primary_button_color }};
+    color: {{ block.settings.primary_button_text_color }};
+    border: none;
+    border-radius: {{ settings.buttons_radius }}px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .ai-add-to-cart-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.primary_button_hover_color }};
+  }
+
+  .ai-buy-now-{{ ai_gen_id }} {
+    flex: 1;
+    padding: 16px 24px;
+    background-color: {{ block.settings.secondary_button_color }};
+    color: {{ block.settings.secondary_button_text_color }};
+    border: 1px solid {{ block.settings.secondary_button_color }};
+    border-radius: {{ settings.buttons_radius }}px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .ai-buy-now-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.secondary_button_hover_color }};
+    color: {{ block.settings.secondary_button_hover_text_color }};
+  }
+
+  .ai-product-details-{{ ai_gen_id }} {
+    border-top: 1px solid #eee;
+    padding-top: 24px;
+  }
+
+  .ai-details-section-{{ ai_gen_id }} {
+    margin-bottom: 20px;
+  }
+
+  .ai-details-title-{{ ai_gen_id }} {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: {{ block.settings.text_color }};
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ai-details-content-{{ ai_gen_id }} {
+    color: #666;
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  .ai-details-list-{{ ai_gen_id }} {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .ai-details-list-{{ ai_gen_id }} li {
+    padding: 4px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ai-details-list-{{ ai_gen_id }} li:last-child {
+    border-bottom: none;
+  }
+
+  .ai-trust-badges-{{ ai_gen_id }} {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .ai-trust-badge-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #666;
+  }
+
+  .ai-zoom-overlay-{{ ai_gen_id }} {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-zoom-image-{{ ai_gen_id }} {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+  }
+
+  .ai-zoom-close-{{ ai_gen_id }} {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-product-container-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .ai-product-info-{{ ai_gen_id }} {
+      padding: 0;
+    }
+
+    .ai-action-buttons-{{ ai_gen_id }} {
+      flex-direction: column;
+    }
+
+    .ai-thumbnail-grid-{{ ai_gen_id }} {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .ai-quantity-section-{{ ai_gen_id }} {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+  }
+{% endstyle %}
+
+<product-page-{{ ai_gen_id }}
+  class="ai-product-page-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-product-container-{{ ai_gen_id }}">
+    <div class="ai-product-gallery-{{ ai_gen_id }}">
+      <div class="ai-main-image-container-{{ ai_gen_id }}">
+        {% if block.settings.main_image %}
+          <img
+            src="{{ block.settings.main_image | image_url: width: 800 }}"
+            alt="{{ block.settings.main_image.alt | escape }}"
+            class="ai-main-image-{{ ai_gen_id }}"
+            data-zoom-src="{{ block.settings.main_image | image_url: width: 1600 }}"
+          >
+        {% else %}
+          <div class="ai-image-placeholder-{{ ai_gen_id }}">
+            {{ 'product-apparel-1' | placeholder_svg_tag }}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="ai-thumbnail-grid-{{ ai_gen_id }}">
+        {% if block.settings.main_image %}
+          <div class="ai-thumbnail-{{ ai_gen_id }} active" data-image="{{ block.settings.main_image | image_url: width: 800 }}" data-zoom="{{ block.settings.main_image | image_url: width: 1600 }}">
+            <img src="{{ block.settings.main_image | image_url: width: 200 }}" alt="Main image">
+          </div>
+        {% endif %}
+        {% for i in (2..4) %}
+          {% assign image_key = 'gallery_image_' | append: i %}
+          {% assign gallery_image = block.settings[image_key] %}
+          {% if gallery_image %}
+            <div class="ai-thumbnail-{{ ai_gen_id }}" data-image="{{ gallery_image | image_url: width: 800 }}" data-zoom="{{ gallery_image | image_url: width: 1600 }}">
+              <img src="{{ gallery_image | image_url: width: 200 }}" alt="Gallery image {{ i }}">
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="ai-product-info-{{ ai_gen_id }}">
+      <h1 class="ai-product-title-{{ ai_gen_id }}">{{ block.settings.product_title }}</h1>
+
+      {% if block.settings.show_rating %}
+        <div class="ai-product-rating-{{ ai_gen_id }}">
+          <div class="ai-stars-{{ ai_gen_id }}">
+            {% for i in (1..5) %}
+              <span class="ai-star-{{ ai_gen_id }}">
+                {% if i <= block.settings.rating %}★{% else %}☆{% endif %}
+              </span>
+            {% endfor %}
+          </div>
+          <span class="ai-rating-text-{{ ai_gen_id }}">{{ block.settings.rating_text }}</span>
+        </div>
+      {% endif %}
+
+      <div class="ai-price-section-{{ ai_gen_id }}">
+        <div class="ai-price-container-{{ ai_gen_id }}">
+          <span class="ai-sale-price-{{ ai_gen_id }}">₹{{ block.settings.sale_price }}</span>
+          {% if block.settings.original_price and block.settings.original_price != block.settings.sale_price %}
+            <span class="ai-original-price-{{ ai_gen_id }}">₹{{ block.settings.original_price }}</span>
+            {% assign discount_percent = block.settings.original_price | minus: block.settings.sale_price | times: 100 | divided_by: block.settings.original_price %}
+            <span class="ai-discount-badge-{{ ai_gen_id }}">{{ discount_percent }}% OFF</span>
+          {% endif %}
+        </div>
+        {% if block.settings.show_tax_info %}
+          <div class="ai-tax-info-{{ ai_gen_id }}">{{ block.settings.tax_info_text }}</div>
+        {% endif %}
+      </div>
+
+      <div class="ai-variant-section-{{ ai_gen_id }}">
+        {% if block.settings.show_color_variants %}
+          <div class="ai-variant-label-{{ ai_gen_id }}">
+            Color: <span id="selected-color-{{ ai_gen_id }}">{{ block.settings.color_1_name }}</span>
+          </div>
+          <div class="ai-color-swatches-{{ ai_gen_id }}">
+            {% for i in (1..5) %}
+              {% assign color_key = 'color_' | append: i %}
+              {% assign color_name_key = 'color_' | append: i | append: '_name' %}
+              {% assign color_value = block.settings[color_key] %}
+              {% assign color_name = block.settings[color_name_key] %}
+              {% if color_value and color_name %}
+                <div
+                  class="ai-color-swatch-{{ ai_gen_id }} {% if i == 1 %}active{% endif %}"
+                  style="background-color: {{ color_value }};"
+                  data-color="{{ color_name }}"
+                  data-color-index="{{ i }}"
+                  title="{{ color_name }}"
+                ></div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if block.settings.show_size_variants %}
+          <div class="ai-variant-label-{{ ai_gen_id }}">
+            Size: <span id="selected-size-{{ ai_gen_id }}">{{ block.settings.size_1 }}</span>
+            {% if block.settings.show_size_guide %}
+              <span class="ai-size-guide-link-{{ ai_gen_id }}">Size Guide</span>
+            {% endif %}
+          </div>
+          <div class="ai-size-options-{{ ai_gen_id }}">
+            {% for i in (1..6) %}
+              {% assign size_key = 'size_' | append: i %}
+              {% assign size_value = block.settings[size_key] %}
+              {% if size_value %}
+                <div
+                  class="ai-size-option-{{ ai_gen_id }} {% if i == 1 %}active{% endif %}"
+                  data-size="{{ size_value }}"
+                >{{ size_value }}</div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="ai-quantity-section-{{ ai_gen_id }}">
+        <span class="ai-quantity-label-{{ ai_gen_id }}">Quantity:</span>
+        <div class="ai-quantity-controls-{{ ai_gen_id }}">
+          <button class="ai-quantity-btn-{{ ai_gen_id }}" data-action="decrease">−</button>
+          <input type="number" class="ai-quantity-input-{{ ai_gen_id }}" value="1" min="1" max="10">
+          <button class="ai-quantity-btn-{{ ai_gen_id }}" data-action="increase">+</button>
+        </div>
+      </div>
+
+      <div class="ai-action-buttons-{{ ai_gen_id }}">
+        <button class="ai-add-to-cart-{{ ai_gen_id }}">Add to Cart</button>
+        <button class="ai-buy-now-{{ ai_gen_id }}">Buy Now</button>
+      </div>
+
+      <div class="ai-product-details-{{ ai_gen_id }}">
+        {% if block.settings.product_description %}
+          <div class="ai-details-section-{{ ai_gen_id }}">
+            <h3 class="ai-details-title-{{ ai_gen_id }}">Product Description</h3>
+            <div class="ai-details-content-{{ ai_gen_id }}">{{ block.settings.product_description }}</div>
+          </div>
+        {% endif %}
+
+        {% if block.settings.show_specifications %}
+          <div class="ai-details-section-{{ ai_gen_id }}">
+            <h3 class="ai-details-title-{{ ai_gen_id }}">Specifications</h3>
+            <ul class="ai-details-list-{{ ai_gen_id }}">
+              {% if block.settings.fabric %}
+                <li><strong>Fabric:</strong> {{ block.settings.fabric }}</li>
+              {% endif %}
+              {% if block.settings.work_type %}
+                <li><strong>Work Type:</strong> {{ block.settings.work_type }}</li>
+              {% endif %}
+              {% if block.settings.length %}
+                <li><strong>Length:</strong> {{ block.settings.length }}</li>
+              {% endif %}
+              {% if block.settings.care_instructions %}
+                <li><strong>Care:</strong> {{ block.settings.care_instructions }}</li>
+              {% endif %}
+              {% if block.settings.origin %}
+                <li><strong>Origin:</strong> {{ block.settings.origin }}</li>
+              {% endif %}
+            </ul>
+          </div>
+        {% endif %}
+
+        {% if block.settings.show_trust_badges %}
+          <div class="ai-trust-badges-{{ ai_gen_id }}">
+            <div class="ai-trust-badge-{{ ai_gen_id }}">
+              <span>🚚</span> Free Shipping
+            </div>
+            <div class="ai-trust-badge-{{ ai_gen_id }}">
+              <span>↩️</span> Easy Returns
+            </div>
+            <div class="ai-trust-badge-{{ ai_gen_id }}">
+              <span>✓</span> Authentic Product
+            </div>
+            <div class="ai-trust-badge-{{ ai_gen_id }}">
+              <span>🔒</span> Secure Payment
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-zoom-overlay-{{ ai_gen_id }}" id="zoom-overlay-{{ ai_gen_id }}">
+    <button class="ai-zoom-close-{{ ai_gen_id }}">&times;</button>
+    <img class="ai-zoom-image-{{ ai_gen_id }}" id="zoom-image-{{ ai_gen_id }}" src="" alt="Zoomed product image">
+  </div>
+</product-page-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ProductPage{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.setupImageGallery();
+        this.setupColorSwatches();
+        this.setupSizeOptions();
+        this.setupQuantityControls();
+        this.setupZoomFunctionality();
+      }
+
+      setupImageGallery() {
+        const thumbnails = this.querySelectorAll('.ai-thumbnail-{{ ai_gen_id }}');
+        const mainImage = this.querySelector('.ai-main-image-{{ ai_gen_id }}');
+
+        thumbnails.forEach(thumbnail => {
+          thumbnail.addEventListener('click', () => {
+            thumbnails.forEach(t => t.classList.remove('active'));
+            thumbnail.classList.add('active');
+            
+            const newImageSrc = thumbnail.dataset.image;
+            const newZoomSrc = thumbnail.dataset.zoom;
+            
+            if (mainImage && newImageSrc) {
+              mainImage.src = newImageSrc;
+              mainImage.dataset.zoomSrc = newZoomSrc;
+            }
+          });
+        });
+      }
+
+      setupColorSwatches() {
+        const colorSwatches = this.querySelectorAll('.ai-color-swatch-{{ ai_gen_id }}');
+        const selectedColorSpan = this.querySelector('#selected-color-{{ ai_gen_id }}');
+
+        colorSwatches.forEach(swatch => {
+          swatch.addEventListener('click', () => {
+            colorSwatches.forEach(s => s.classList.remove('active'));
+            swatch.classList.add('active');
+            
+            if (selectedColorSpan) {
+              selectedColorSpan.textContent = swatch.dataset.color;
+            }
+          });
+        });
+      }
+
+      setupSizeOptions() {
+        const sizeOptions = this.querySelectorAll('.ai-size-option-{{ ai_gen_id }}');
+        const selectedSizeSpan = this.querySelector('#selected-size-{{ ai_gen_id }}');
+
+        sizeOptions.forEach(option => {
+          option.addEventListener('click', () => {
+            sizeOptions.forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+            
+            if (selectedSizeSpan) {
+              selectedSizeSpan.textContent = option.dataset.size;
+            }
+          });
+        });
+      }
+
+      setupQuantityControls() {
+        const quantityInput = this.querySelector('.ai-quantity-input-{{ ai_gen_id }}');
+        const quantityBtns = this.querySelectorAll('.ai-quantity-btn-{{ ai_gen_id }}');
+
+        quantityBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const action = btn.dataset.action;
+            let currentValue = parseInt(quantityInput.value);
+            
+            if (action === 'increase' && currentValue < 10) {
+              quantityInput.value = currentValue + 1;
+            } else if (action === 'decrease' && currentValue > 1) {
+              quantityInput.value = currentValue - 1;
+            }
+          });
+        });
+
+        quantityInput.addEventListener('change', () => {
+          let value = parseInt(quantityInput.value);
+          if (value < 1) quantityInput.value = 1;
+          if (value > 10) quantityInput.value = 10;
+        });
+      }
+
+      setupZoomFunctionality() {
+        const mainImage = this.querySelector('.ai-main-image-{{ ai_gen_id }}');
+        const zoomOverlay = this.querySelector('#zoom-overlay-{{ ai_gen_id }}');
+        const zoomImage = this.querySelector('#zoom-image-{{ ai_gen_id }}');
+        const zoomClose = this.querySelector('.ai-zoom-close-{{ ai_gen_id }}');
+
+        if (mainImage && zoomOverlay && zoomImage) {
+          mainImage.addEventListener('click', () => {
+            const zoomSrc = mainImage.dataset.zoomSrc || mainImage.src;
+            zoomImage.src = zoomSrc;
+            zoomOverlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+          });
+
+          const closeZoom = () => {
+            zoomOverlay.style.display = 'none';
+            document.body.style.overflow = '';
+          };
+
+          zoomClose.addEventListener('click', closeZoom);
+          zoomOverlay.addEventListener('click', (e) => {
+            if (e.target === zoomOverlay) closeZoom();
+          });
+
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && zoomOverlay.style.display === 'flex') {
+              closeZoom();
+            }
+          });
+        }
+      }
+    }
+
+    customElements.define('product-page-{{ ai_gen_id }}', ProductPage{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Professional product page",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product information"
+    },
+    {
+      "type": "text",
+      "id": "product_title",
+      "label": "Product title",
+      "default": "Semi Paithani Silk Saree"
+    },
+    {
+      "type": "richtext",
+      "id": "product_description",
+      "label": "Product description",
+      "default": "<p>Exquisite Semi Paithani Silk Saree with traditional motifs and rich golden border. Perfect for special occasions and festivals.</p>"
+    },
+    {
+      "type": "text",
+      "id": "sale_price",
+      "label": "Sale price",
+      "default": "2,999"
+    },
+    {
+      "type": "text",
+      "id": "original_price",
+      "label": "Original price",
+      "default": "4,999"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tax_info",
+      "label": "Show tax information",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "tax_info_text",
+      "label": "Tax information text",
+      "default": "Inclusive of all taxes"
+    },
+    {
+      "type": "header",
+      "content": "Product images"
+    },
+    {
+      "type": "image_picker",
+      "id": "main_image",
+      "label": "Main product image"
+    },
+    {
+      "type": "image_picker",
+      "id": "gallery_image_2",
+      "label": "Gallery image 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "gallery_image_3",
+      "label": "Gallery image 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "gallery_image_4",
+      "label": "Gallery image 4"
+    },
+    {
+      "type": "header",
+      "content": "Rating and reviews"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show product rating",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "rating",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "label": "Product rating",
+      "default": 4
+    },
+    {
+      "type": "text",
+      "id": "rating_text",
+      "label": "Rating text",
+      "default": "4.2 (128 reviews)"
+    },
+    {
+      "type": "header",
+      "content": "Color variants"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_color_variants",
+      "label": "Show color variants",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "color_1",
+      "label": "Color 1",
+      "default": "#8B0000"
+    },
+    {
+      "type": "text",
+      "id": "color_1_name",
+      "label": "Color 1 name",
+      "default": "Maroon"
+    },
+    {
+      "type": "color",
+      "id": "color_2",
+      "label": "Color 2",
+      "default": "#000080"
+    },
+    {
+      "type": "text",
+      "id": "color_2_name",
+      "label": "Color 2 name",
+      "default": "Navy Blue"
+    },
+    {
+      "type": "color",
+      "id": "color_3",
+      "label": "Color 3",
+      "default": "#006400"
+    },
+    {
+      "type": "text",
+      "id": "color_3_name",
+      "label": "Color 3 name",
+      "default": "Green"
+    },
+    {
+      "type": "color",
+      "id": "color_4",
+      "label": "Color 4",
+      "default": "#800080"
+    },
+    {
+      "type": "text",
+      "id": "color_4_name",
+      "label": "Color 4 name",
+      "default": "Purple"
+    },
+    {
+      "type": "color",
+      "id": "color_5",
+      "label": "Color 5",
+      "default": "#FF6347"
+    },
+    {
+      "type": "text",
+      "id": "color_5_name",
+      "label": "Color 5 name",
+      "default": "Orange"
+    },
+    {
+      "type": "header",
+      "content": "Size variants"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_size_variants",
+      "label": "Show size variants",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_size_guide",
+      "label": "Show size guide link",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "size_1",
+      "label": "Size 1",
+      "default": "Free Size"
+    },
+    {
+      "type": "text",
+      "id": "size_2",
+      "label": "Size 2",
+      "default": "5.5m"
+    },
+    {
+      "type": "text",
+      "id": "size_3",
+      "label": "Size 3",
+      "default": "6m"
+    },
+    {
+      "type": "text",
+      "id": "size_4",
+      "label": "Size 4"
+    },
+    {
+      "type": "text",
+      "id": "size_5",
+      "label": "Size 5"
+    },
+    {
+      "type": "text",
+      "id": "size_6",
+      "label": "Size 6"
+    },
+    {
+      "type": "header",
+      "content": "Product specifications"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_specifications",
+      "label": "Show specifications",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "fabric",
+      "label": "Fabric",
+      "default": "Semi Silk"
+    },
+    {
+      "type": "text",
+      "id": "work_type",
+      "label": "Work type",
+      "default": "Paithani Weave"
+    },
+    {
+      "type": "text",
+      "id": "length",
+      "label": "Length",
+      "default": "5.5 meters + 0.8m blouse"
+    },
+    {
+      "type": "text",
+      "id": "care_instructions",
+      "label": "Care instructions",
+      "default": "Dry clean only"
+    },
+    {
+      "type": "text",
+      "id": "origin",
+      "label": "Origin",
+      "default": "Maharashtra, India"
+    },
+    {
+      "type": "header",
+      "content": "Trust badges"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_trust_badges",
+      "label": "Show trust badges",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Style settings"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#e74c3c"
+    },
+    {
+      "type": "color",
+      "id": "sale_price_color",
+      "label": "Sale price color",
+      "default": "#e74c3c"
+    },
+    {
+      "type": "color",
+      "id": "discount_bg_color",
+      "label": "Discount badge background",
+      "default": "#e74c3c"
+    },
+    {
+      "type": "color",
+      "id": "discount_text_color",
+      "label": "Discount badge text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_color",
+      "label": "Primary button color",
+      "default": "#e74c3c"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_text_color",
+      "label": "Primary button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_hover_color",
+      "label": "Primary button hover color",
+      "default": "#c0392b"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_color",
+      "label": "Secondary button color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_text_color",
+      "label": "Secondary button text color",
+      "default": "#e74c3c"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_hover_color",
+      "label": "Secondary button hover color",
+      "default": "#e74c3c"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_hover_text_color",
+      "label": "Secondary button hover text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 20,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Title font size",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "min": 20,
+      "max": 36,
+      "step": 2,
+      "unit": "px",
+      "label": "Sale price font size",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "original_price_size",
+      "min": 14,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Original price font size",
+      "default": 18
+    }
+  ],
+  "presets": [
+    {
+      "name": "Professional product page"
+    }
+  ]
+}
+{% endschema %}

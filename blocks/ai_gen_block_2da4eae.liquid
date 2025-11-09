@@ -1,0 +1,154 @@
+{% doc %}
+  @prompt
+    Create a wishlist heart icon that is positioned behind and at the top of the search icon. The heart should be layered behind the search icon using CSS z-index, positioned at the top area of the search icon. Include proper positioning and styling to ensure the heart icon doesn't interfere with the search functionality while being visible behind it.
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-wishlist-search-{{ ai_gen_id }} {
+    position: relative;
+    display: inline-block;
+  }
+
+  .ai-search-icon-{{ ai_gen_id }} {
+    position: relative;
+    z-index: 2;
+    width: {{ block.settings.search_icon_size }}px;
+    height: {{ block.settings.search_icon_size }}px;
+    color: {{ block.settings.search_icon_color }};
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  .ai-search-icon-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.search_icon_hover_color }};
+  }
+
+  .ai-wishlist-heart-{{ ai_gen_id }} {
+    position: absolute;
+    top: {{ block.settings.heart_top_offset }}px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    width: {{ block.settings.heart_size }}px;
+    height: {{ block.settings.heart_size }}px;
+    color: {{ block.settings.heart_color }};
+    opacity: {{ block.settings.heart_opacity | divided_by: 100.0 }};
+    pointer-events: none;
+  }
+
+  .ai-wishlist-heart-{{ ai_gen_id }} svg,
+  .ai-search-icon-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-search-icon-{{ ai_gen_id }} {
+      width: {{ block.settings.search_icon_size | times: 0.8 }}px;
+      height: {{ block.settings.search_icon_size | times: 0.8 }}px;
+    }
+
+    .ai-wishlist-heart-{{ ai_gen_id }} {
+      width: {{ block.settings.heart_size | times: 0.8 }}px;
+      height: {{ block.settings.heart_size | times: 0.8 }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-wishlist-search-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-wishlist-heart-{{ ai_gen_id }}">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+    </svg>
+  </div>
+
+  <button class="ai-search-icon-{{ ai_gen_id }}" aria-label="Search">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"></circle>
+      <path d="m21 21-4.35-4.35"></path>
+    </svg>
+  </button>
+</div>
+
+{% schema %}
+{
+  "name": "Wishlist search icon",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Search icon"
+    },
+    {
+      "type": "range",
+      "id": "search_icon_size",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Size",
+      "default": 24
+    },
+    {
+      "type": "color",
+      "id": "search_icon_color",
+      "label": "Color",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "search_icon_hover_color",
+      "label": "Hover color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Heart icon"
+    },
+    {
+      "type": "range",
+      "id": "heart_size",
+      "min": 12,
+      "max": 36,
+      "step": 2,
+      "unit": "px",
+      "label": "Size",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "heart_color",
+      "label": "Color",
+      "default": "#ff6b6b"
+    },
+    {
+      "type": "range",
+      "id": "heart_opacity",
+      "min": 10,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "label": "Opacity",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "heart_top_offset",
+      "min": -10,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Vertical position",
+      "default": -2
+    }
+  ],
+  "presets": [
+    {
+      "name": "Wishlist search icon"
+    }
+  ],
+  "tag": null
+}
+{% endschema %}

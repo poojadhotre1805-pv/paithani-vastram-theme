@@ -1,0 +1,61 @@
+{%- comment -%}
+✨ Paithani Vastram – Custom Announcement Bar
+Rotates multiple messages with smooth fade
+{%- endcomment -%}
+
+<div class="pv-announcement-bar">
+  <div class="pv-announcement-messages">
+    <span class="pv-message is-active">✨ Free shipping on Paithani orders over ₹2999 ✨</span>
+    <span class="pv-message">🎉 Festive Sale – Flat 25% OFF on Paithani Sarees 🎉</span>
+    <span class="pv-message">🚚 Cash on Delivery Available 🚚</span>
+  </div>
+</div>
+
+<style>
+.pv-announcement-bar {
+  background: linear-gradient(90deg, #6B21A8, #9333EA);
+  color: #FFD700;
+  text-align: center;
+  padding: 8px 15px;
+  font-size: 15px;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+}
+
+.pv-announcement-messages {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  height: 22px;
+}
+
+.pv-message {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+  white-space: nowrap;
+}
+
+.pv-message.is-active {
+  opacity: 1;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const messages = document.querySelectorAll(".pv-message");
+  let index = 0;
+  
+  setInterval(() => {
+    messages[index].classList.remove("is-active");
+    index = (index + 1) % messages.length;
+    messages[index].classList.add("is-active");
+  }, 4000);
+});
+</script>
+
+
+
+

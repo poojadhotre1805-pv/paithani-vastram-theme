@@ -1,0 +1,36 @@
+{
+  "name": "Main product",
+  "tag": "section",
+  "class": "section",
+  "blocks": [
+    { "type": "title", "name": "Product title" },
+    { "type": "price", "name": "Product price" },
+    { "type": "variant_picker", "name": "Variant picker" },
+    { "type": "quantity_selector", "name": "Quantity selector" },
+    { "type": "buy_buttons", "name": "Buy buttons" },
+    { "type": "description", "name": "Description" },
+    { "type": "rating", "name": "Product rating" },
+    { "type": "share", "name": "Share" }
+  ],
+  "settings": [
+    { "type": "checkbox", "id": "enable_sticky_info", "label": "Enable sticky info", "default": true },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "select", "id": "media_size", "label": "Media size", "options": [
+      { "value": "small", "label": "Small" },
+      { "value": "medium", "label": "Medium" },
+      { "value": "large", "label": "Large" }
+    ], "default": "large" },
+    { "type": "range", "id": "padding_top", "label": "Padding top", "min": 0, "max": 100, "step": 4, "unit": "px", "default": 36 },
+    { "type": "range", "id": "padding_bottom", "label": "Padding bottom", "min": 0, "max": 100, "step": 4, "unit": "px", "default": 36 }
+  ],
+  "presets": [
+    {
+      "name": "Main product",
+      "blocks": [
+        { "type": "title" },
+        { "type": "price" },
+        { "type": "buy_buttons" }
+      ]
+    }
+  ]
+}

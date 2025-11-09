@@ -1,0 +1,71 @@
+{%- comment -%}
+Custom Announcement Bar — Paithani Vastram
+Supports multiple rotating messages
+Usage example:
+{% render 'custom-announcement-bar',
+messages: 'Free shipping on Paithani orders over ₹1999|Ganesh Chaturthi Special: 10% OFF|COD available across India',
+cta_label: 'Shop Now',
+cta_url: '/collections/paithani',
+bg: '#6B21A8',
+text: '#FFD700',
+show_divider: true,
+marquee: false
+%}
+{%- endcomment -%}
+
+
+{%- assign raw_msgs = messages | default: message | default: 'Free shipping on Paithani orders over ₹1999' -%}
+{%- assign msg_array = raw_msgs | split: '|' -%}
+
+
+{%- assign cta_label = cta_label | default: '' -%}
+{%- assign cta_url = cta_url | default: '' -%}
+{%- assign bg = bg | default: '#6B21A8' -%}
+{%- assign text = text | default: '#FFD700' -%}
+{%- assign show_div = show_divider | default: false -%}
+{%- assign marquee = marquee | default: false -%}
+{%- assign icon_svg = icon_svg | default: '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 5v6l5 3-.75 1.23L11 14V7h2z"/></svg>' -%}
+
+
+{%- if show_div %}
+<div class="pv-annc__divider" aria-hidden="true"></div>
+{%- endif %}
+
+
+<div class="pv-annc" role="status" aria-live="polite" style="--annc-bg: {{ bg }}; --annc-text: {{ text }}">
+<div class="pv-annc__inner">
+<span class="pv-annc__icon">{{ icon_svg }}</span>
+
+
+<div class="pv-annc__rotator">
+{%- for msg in msg_array -%}
+<div class="pv-annc__content{% if forloop.first %} is-active{% endif %}">
+<span class="pv-annc__msg">{{ msg }}</span>
+{%- if cta_label and cta_url -%}
+<a class="pv-annc__cta" href="{{ cta_url }}">{{ cta_label }}</a>
+{%- endif -%}
+</div>
+{%- endfor -%}
+</div>
+</div>
+</div>
+<div class="custom-announcement-bar">
+  <div class="announcement-slide active"><span>✨ Festive Sale – Flat 20% OFF on Paithani Sarees ✨</span></div>
+  <div class="announcement-slide"><span>🚚 Free Shipping All Over India 🚚</span></div>
+  <div class="announcement-slide"><span>💳 Cash on Delivery Available 💳</span></div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const slides = document.querySelectorAll(".announcement-slide");
+    let currentIndex = 0;
+    if (slides.length > 1) {
+      slides[0].classList.add("active");
+      setInterval(() => {
+        slides[currentIndex].classList.remove("active");
+        currentIndex = (currentIndex + 1) % slides.length;
+        slides[currentIndex].classList.add("active");
+      }, 4000);
+    }
+  });
+</script>

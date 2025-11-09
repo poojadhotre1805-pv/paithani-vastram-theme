@@ -1,0 +1,668 @@
+{% doc %}
+  @prompt
+    Create a product variant selector for color options that displays like Amazon and Flipkart, with color swatches or thumbnails that customers can click to change the main product image and update the selected variant. Include visual feedback when a color is selected and ensure it integrates well with Shopify's variant selection system.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-color-variant-selector-{{ ai_gen_id }} {
+    margin: {{ block.settings.margin_top }}px 0 {{ block.settings.margin_bottom }}px;
+  }
+
+  .ai-color-variant-selector__label-{{ ai_gen_id }} {
+    display: block;
+    font-size: {{ block.settings.label_font_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.label_color }};
+    margin-bottom: 12px;
+  }
+
+  .ai-color-variant-selector__selected-{{ ai_gen_id }} {
+    font-weight: 400;
+    color: {{ block.settings.selected_color }};
+  }
+
+  .ai-color-variant-selector__options-{{ ai_gen_id }} {
+    display: flex;
+    flex-wrap: wrap;
+    gap: {{ block.settings.swatch_spacing }}px;
+    margin-bottom: 8px;
+  }
+
+  .ai-color-variant-selector__option-{{ ai_gen_id }} {
+    position: relative;
+    cursor: pointer;
+    border-radius: {{ block.settings.swatch_border_radius }}px;
+    transition: all 0.2s ease;
+  }
+
+  .ai-color-variant-selector__option-{{ ai_gen_id }}:hover {
+    transform: scale(1.05);
+  }
+
+  .ai-color-variant-selector__input-{{ ai_gen_id }} {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ai-color-variant-selector__swatch-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.swatch_size }}px;
+    height: {{ block.settings.swatch_size }}px;
+    border-radius: {{ block.settings.swatch_border_radius }}px;
+    border: 2px solid {{ block.settings.swatch_border_color }};
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .ai-color-variant-selector__swatch--color-{{ ai_gen_id }} {
+    background-color: var(--ai-swatch-color);
+  }
+
+  .ai-color-variant-selector__swatch--image-{{ ai_gen_id }} {
+    background-image: var(--ai-swatch-image);
+  }
+
+  .ai-color-variant-selector__input-{{ ai_gen_id }}:checked + .ai-color-variant-selector__swatch-{{ ai_gen_id }} {
+    border-color: {{ block.settings.selected_border_color }};
+    border-width: {{ block.settings.selected_border_width }}px;
+    box-shadow: 0 0 0 2px {{ block.settings.selected_ring_color }};
+  }
+
+  .ai-color-variant-selector__input-{{ ai_gen_id }}:disabled + .ai-color-variant-selector__swatch-{{ ai_gen_id }} {
+    opacity: 0.4;
+    cursor: not-allowed;
+    position: relative;
+  }
+
+  .ai-color-variant-selector__input-{{ ai_gen_id }}:disabled + .ai-color-variant-selector__swatch-{{ ai_gen_id }}::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 120%;
+    background-color: {{ block.settings.unavailable_line_color }};
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  .ai-color-variant-selector__checkmark-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  .ai-color-variant-selector__input-{{ ai_gen_id }}:checked + .ai-color-variant-selector__swatch-{{ ai_gen_id }} .ai-color-variant-selector__checkmark-{{ ai_gen_id }} {
+    opacity: 1;
+  }
+
+  .ai-color-variant-selector__tooltip-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: {{ block.settings.tooltip_bg_color }};
+    color: {{ block.settings.tooltip_text_color }};
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .ai-color-variant-selector__tooltip-{{ ai_gen_id }}::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: {{ block.settings.tooltip_bg_color }};
+  }
+
+  .ai-color-variant-selector__option-{{ ai_gen_id }}:hover .ai-color-variant-selector__tooltip-{{ ai_gen_id }} {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .ai-color-variant-selector__availability-{{ ai_gen_id }} {
+    font-size: 12px;
+    color: {{ block.settings.availability_text_color }};
+    margin-top: 4px;
+  }
+
+  .ai-color-variant-selector__availability--in-stock-{{ ai_gen_id }} {
+    color: {{ block.settings.in_stock_color }};
+  }
+
+  .ai-color-variant-selector__availability--out-of-stock-{{ ai_gen_id }} {
+    color: {{ block.settings.out_of_stock_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-color-variant-selector__swatch-{{ ai_gen_id }} {
+      width: {{ block.settings.swatch_size | times: 0.9 }}px;
+      height: {{ block.settings.swatch_size | times: 0.9 }}px;
+    }
+    
+    .ai-color-variant-selector__options-{{ ai_gen_id }} {
+      gap: {{ block.settings.swatch_spacing | times: 0.8 }}px;
+    }
+  }
+{% endstyle %}
+
+<color-variant-selector-{{ ai_gen_id }}
+  class="ai-color-variant-selector-{{ ai_gen_id }}"
+  data-product-id="{{ product.id }}"
+  data-current-variant="{{ product.selected_or_first_available_variant.id }}"
+  {{ block.shopify_attributes }}
+>
+  {% assign color_option = null %}
+  {% for option in product.options_with_values %}
+    {% assign option_name_downcase = option.name | downcase %}
+    {% if option_name_downcase contains 'color' or option_name_downcase contains 'colour' %}
+      {% assign color_option = option %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+
+  {% if color_option %}
+    <label class="ai-color-variant-selector__label-{{ ai_gen_id }}">
+      {{ color_option.name }}:
+      <span class="ai-color-variant-selector__selected-{{ ai_gen_id }}" data-selected-value>
+        {{ product.selected_or_first_available_variant.options[color_option.position] }}
+      </span>
+    </label>
+
+    <div class="ai-color-variant-selector__options-{{ ai_gen_id }}">
+      {% for value in color_option.values %}
+        {% assign option_position = color_option.position %}
+        {% assign variant_for_value = null %}
+        {% assign is_available = false %}
+
+        {% for variant in product.variants %}
+          {% if variant.options[option_position] == value %}
+            {% assign variant_for_value = variant %}
+            {% if variant.available %}
+              {% assign is_available = true %}
+            {% endif %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+
+        {% if variant_for_value %}
+          {% assign swatch_color = null %}
+          {% assign swatch_image = null %}
+          
+          {% comment %} Try to get color from metafields first {% endcomment %}
+          {% if variant_for_value.metafields.custom.color %}
+            {% assign swatch_color = variant_for_value.metafields.custom.color %}
+          {% elsif variant_for_value.metafields.custom.swatch_color %}
+            {% assign swatch_color = variant_for_value.metafields.custom.swatch_color %}
+          {% endif %}
+
+          {% comment %} Try to get swatch image from metafields {% endcomment %}
+          {% if variant_for_value.metafields.custom.swatch_image %}
+            {% assign swatch_image = variant_for_value.metafields.custom.swatch_image %}
+          {% elsif variant_for_value.featured_image %}
+            {% assign swatch_image = variant_for_value.featured_image %}
+          {% endif %}
+
+          {% comment %} Fallback color mapping {% endcomment %}
+          {% unless swatch_color %}
+            {% assign value_downcase = value | downcase %}
+            {% case value_downcase %}
+              {% when 'red' %}
+                {% assign swatch_color = '#dc2626' %}
+              {% when 'blue' %}
+                {% assign swatch_color = '#2563eb' %}
+              {% when 'green' %}
+                {% assign swatch_color = '#16a34a' %}
+              {% when 'yellow' %}
+                {% assign swatch_color = '#eab308' %}
+              {% when 'purple' %}
+                {% assign swatch_color = '#9333ea' %}
+              {% when 'pink' %}
+                {% assign swatch_color = '#ec4899' %}
+              {% when 'orange' %}
+                {% assign swatch_color = '#ea580c' %}
+              {% when 'black' %}
+                {% assign swatch_color = '#000000' %}
+              {% when 'white' %}
+                {% assign swatch_color = '#ffffff' %}
+              {% when 'gray' or 'grey' %}
+                {% assign swatch_color = '#6b7280' %}
+              {% when 'brown' %}
+                {% assign swatch_color = '#92400e' %}
+              {% when 'navy' %}
+                {% assign swatch_color = '#1e3a8a' %}
+              {% when 'beige' %}
+                {% assign swatch_color = '#f5f5dc' %}
+              {% when 'cream' %}
+                {% assign swatch_color = '#fffdd0' %}
+              {% else %}
+                {% assign swatch_color = '#9ca3af' %}
+            {% endcase %}
+          {% endunless %}
+
+          <div class="ai-color-variant-selector__option-{{ ai_gen_id }}">
+            <input
+              type="radio"
+              name="color-option-{{ ai_gen_id }}"
+              value="{{ value | escape }}"
+              id="color-{{ ai_gen_id }}-{{ value | handle }}"
+              class="ai-color-variant-selector__input-{{ ai_gen_id }}"
+              data-variant-id="{{ variant_for_value.id }}"
+              data-option-position="{{ option_position }}"
+              {% if product.selected_or_first_available_variant.options[option_position] == value %}checked{% endif %}
+              {% unless is_available %}disabled{% endunless %}
+            >
+            
+            <label
+              for="color-{{ ai_gen_id }}-{{ value | handle }}"
+              class="ai-color-variant-selector__swatch-{{ ai_gen_id }} {% if swatch_image %}ai-color-variant-selector__swatch--image-{{ ai_gen_id }}{% else %}ai-color-variant-selector__swatch--color-{{ ai_gen_id }}{% endif %}"
+              {% if swatch_color %}style="--ai-swatch-color: {{ swatch_color }};"{% endif %}
+              {% if swatch_image %}style="--ai-swatch-image: url('{{ swatch_image | image_url: width: 100 }}');"{% endif %}
+            >
+              {% if block.settings.show_checkmark %}
+                <svg class="ai-color-variant-selector__checkmark-{{ ai_gen_id }}" viewBox="0 0 24 24" fill="none" stroke="{{ block.settings.checkmark_color }}" stroke-width="3">
+                  <polyline points="20,6 9,17 4,12"></polyline>
+                </svg>
+              {% endif %}
+            </label>
+
+            {% if block.settings.show_tooltip %}
+              <div class="ai-color-variant-selector__tooltip-{{ ai_gen_id }}">
+                {{ value }}
+                {% if block.settings.show_availability_in_tooltip %}
+                  {% if is_available %}
+                    - In Stock
+                  {% else %}
+                    - Out of Stock
+                  {% endif %}
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    {% if block.settings.show_availability %}
+      <div class="ai-color-variant-selector__availability-{{ ai_gen_id }}" data-availability-text>
+        {% if product.selected_or_first_available_variant.available %}
+          <span class="ai-color-variant-selector__availability--in-stock-{{ ai_gen_id }}">✓ In Stock</span>
+        {% else %}
+          <span class="ai-color-variant-selector__availability--out-of-stock-{{ ai_gen_id }}">✗ Out of Stock</span>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% else %}
+    <div style="padding: 20px; background: #f9f9f9; border-radius: 8px; text-align: center; color: #666;">
+      <p style="margin: 0; font-size: 14px;">No color options found for this product.</p>
+      <p style="margin: 8px 0 0; font-size: 12px;">Add a "Color" option to your product variants to use this selector.</p>
+    </div>
+  {% endif %}
+</color-variant-selector-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ColorVariantSelector{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.productId = this.dataset.productId;
+        this.currentVariantId = this.dataset.currentVariant;
+        this.productData = null;
+      }
+
+      connectedCallback() {
+        this.init();
+      }
+
+      async init() {
+        await this.fetchProductData();
+        this.setupEventListeners();
+        this.updateMainImage();
+      }
+
+      async fetchProductData() {
+        try {
+          const response = await fetch(`/products/${this.productId}.js`);
+          this.productData = await response.json();
+        } catch (error) {
+          console.error('Error fetching product data:', error);
+        }
+      }
+
+      setupEventListeners() {
+        const inputs = this.querySelectorAll('.ai-color-variant-selector__input-{{ ai_gen_id }}');
+        
+        inputs.forEach(input => {
+          input.addEventListener('change', (e) => {
+            if (e.target.checked) {
+              this.handleVariantChange(e.target);
+            }
+          });
+        });
+      }
+
+      handleVariantChange(input) {
+        const variantId = input.dataset.variantId;
+        const selectedValue = input.value;
+        
+        this.updateSelectedLabel(selectedValue);
+        this.updateAvailability(variantId);
+        this.updateMainImage(variantId);
+        this.updateURL(variantId);
+        this.triggerVariantChangeEvent(variantId);
+      }
+
+      updateSelectedLabel(value) {
+        const selectedSpan = this.querySelector('[data-selected-value]');
+        if (selectedSpan) {
+          selectedSpan.textContent = value;
+        }
+      }
+
+      updateAvailability(variantId) {
+        const availabilityElement = this.querySelector('[data-availability-text]');
+        if (!availabilityElement || !this.productData) return;
+
+        const variant = this.productData.variants.find(v => v.id == variantId);
+        if (variant) {
+          const isAvailable = variant.available;
+          availabilityElement.innerHTML = isAvailable 
+            ? '<span class="ai-color-variant-selector__availability--in-stock-{{ ai_gen_id }}">✓ In Stock</span>'
+            : '<span class="ai-color-variant-selector__availability--out-of-stock-{{ ai_gen_id }}">✗ Out of Stock</span>';
+        }
+      }
+
+      updateMainImage(variantId) {
+        if (!this.productData) return;
+
+        const variant = this.productData.variants.find(v => v.id == variantId);
+        if (variant && variant.featured_image) {
+          const mainImages = document.querySelectorAll('.product__media img, .product-media img, [data-product-image]');
+          
+          mainImages.forEach(img => {
+            if (img.src.includes(variant.featured_image.src.split('/').pop().split('?')[0])) {
+              return;
+            }
+            
+            const newSrc = variant.featured_image.src;
+            img.src = newSrc;
+            img.srcset = '';
+            
+            if (img.closest('.product__media, .product-media')) {
+              img.closest('.product__media, .product-media').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest' 
+              });
+            }
+          });
+
+          const productGallery = document.querySelector('.product__media-list, .product-media-list');
+          if (productGallery) {
+            const targetImage = productGallery.querySelector(`img[src*="${variant.featured_image.src.split('/').pop().split('?')[0]}"]`);
+            if (targetImage && targetImage.closest('.product__media-item, .product-media-item')) {
+              targetImage.closest('.product__media-item, .product-media-item').scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+              });
+            }
+          }
+        }
+      }
+
+      updateURL(variantId) {
+        const url = new URL(window.location);
+        url.searchParams.set('variant', variantId);
+        window.history.replaceState({}, '', url);
+      }
+
+      triggerVariantChangeEvent(variantId) {
+        const event = new CustomEvent('variant:change', {
+          detail: { 
+            variantId: variantId,
+            productId: this.productId 
+          },
+          bubbles: true
+        });
+        this.dispatchEvent(event);
+
+        const variantSelects = document.querySelectorAll('select[name="id"], input[name="id"]');
+        variantSelects.forEach(select => {
+          if (select.value != variantId) {
+            select.value = variantId;
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
+      }
+    }
+
+    customElements.define('color-variant-selector-{{ ai_gen_id }}', ColorVariantSelector{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Color variant selector",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Label"
+    },
+    {
+      "type": "range",
+      "id": "label_font_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Label font size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label color",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "selected_color",
+      "label": "Selected value color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Swatches"
+    },
+    {
+      "type": "range",
+      "id": "swatch_size",
+      "min": 30,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Swatch size",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "swatch_spacing",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Swatch spacing",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "swatch_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Swatch border radius",
+      "default": 6
+    },
+    {
+      "type": "color",
+      "id": "swatch_border_color",
+      "label": "Swatch border color",
+      "default": "#e5e5e5"
+    },
+    {
+      "type": "header",
+      "content": "Selected state"
+    },
+    {
+      "type": "color",
+      "id": "selected_border_color",
+      "label": "Selected border color",
+      "default": "#121212"
+    },
+    {
+      "type": "range",
+      "id": "selected_border_width",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "unit": "px",
+      "label": "Selected border width",
+      "default": 3
+    },
+    {
+      "type": "color",
+      "id": "selected_ring_color",
+      "label": "Selected ring color",
+      "default": "#121212"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_checkmark",
+      "label": "Show checkmark on selected",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "checkmark_color",
+      "label": "Checkmark color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Unavailable state"
+    },
+    {
+      "type": "color",
+      "id": "unavailable_line_color",
+      "label": "Unavailable line color",
+      "default": "#dc2626"
+    },
+    {
+      "type": "header",
+      "content": "Tooltip"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tooltip",
+      "label": "Show tooltip on hover",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "tooltip_bg_color",
+      "label": "Tooltip background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "tooltip_text_color",
+      "label": "Tooltip text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_availability_in_tooltip",
+      "label": "Show availability in tooltip",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Availability"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_availability",
+      "label": "Show availability text",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "availability_text_color",
+      "label": "Availability text color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "in_stock_color",
+      "label": "In stock color",
+      "default": "#16a34a"
+    },
+    {
+      "type": "color",
+      "id": "out_of_stock_color",
+      "label": "Out of stock color",
+      "default": "#dc2626"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Top margin",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom margin",
+      "default": 16
+    }
+  ],
+  "presets": [
+    {
+      "name": "Color variant selector"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,164 @@
+{% schema %}
+{
+  "name": "Amazon Product (Premium)",
+  "settings": [],
+  "presets": [
+    { "name": "Amazon Product Premium" }
+  ]
+}
+{% endschema %}
+
+<style>
+  .amazon-wrapper { max-width:1200px; margin:auto; padding:15px; }
+
+  .main-image img {
+    width:100%; max-height:600px; object-fit:contain;
+  }
+
+  .color-btn {
+    padding:8px 15px;
+    background:#eee;
+    border:1px solid #ccc;
+    border-radius:6px;
+    cursor:pointer;
+    margin-right:8px;
+  }
+  .color-btn.active {
+    background:black;
+    color:white;
+  }
+
+.thumbs {
+    display:flex; gap:10px; overflow-x:auto; margin-top:15px;
+}
+
+.thumbs img {
+    width:80px; height:80px; object-fit:cover;
+    border-radius:6px; border:2px solid #ddd; cursor:pointer;
+}
+
+
+  .add-to-cart-button, .buy-now-button {
+    width:100%; padding:14px; margin-top:10px;
+    font-size:17px; background:#d10069;
+    color:white; border:none; border-radius:7px; cursor:pointer;
+  }
+  .buy-now-button { background:#ff6500; }
+  .cart-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.cart-row button {
+  flex: 1;
+}
+</style>
+
+<div class="amazon-wrapper">
+
+  <!-- MAIN IMAGE -->
+  <div class="main-image">
+    <img id="mainImage" src="{{ product.media.first | image_url }}" />
+  </div>
+
+  <!-- COLOR BUTTONS -->
+  <div class="color-label">Color:</div>
+
+  <div id="colorButtons">
+    {% for option in product.options_with_values %}
+      {% assign option_name = option.name | downcase %}
+      {% if option_name contains 'color' %}
+        {% for value in option.values %}
+          <button 
+            class="color-btn"
+            data-color="{{ value | downcase }}"
+            onclick="selectColor('{{ value | downcase }}', this)">
+            {{ value }}
+          </button>
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- THUMBNAILS -->
+  <div id="thumbs" class="thumbs">
+    {% for media in product.media %}
+      <img src="{{ media | image_url: width: 300 }}"
+        data-alt="{{ media.alt | downcase }}"
+        onclick="document.getElementById('mainImage').src='{{ media | image_url }}'">
+    {% endfor %}
+  </div>
+
+  <!-- CART -->
+  <form method="post" action="/cart/add" id="product-form">
+    <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+    <div class="cart-row">
+  <button type="submit" class="add-to-cart-button">
+    Add to Cart
+  </button>
+
+  <button 
+  type="submit"
+  name="checkout"
+  class="buy-now-button"
+>
+  Buy Now
+</button>
+
+</div>
+
+  </form>
+
+  <!-- TITLE + PRICE -->
+  <h2>{{ product.title }}</h2>
+
+  <div>
+    {% if product.compare_at_price > product.price %}
+      <span style="text-decoration:line-through; color:grey;">
+        {{ product.compare_at_price | money }}
+      </span>
+
+      {% assign discount = product.compare_at_price | minus: product.price %}
+      {% assign percent = discount | times:100 | divided_by:product.compare_at_price | round %}
+      <span style="background:#ff6500; color:white; padding:4px 8px; margin-left:8px; border-radius:4px;">
+        {{ percent }}% OFF
+      </span>
+    {% endif %}
+
+    <br>
+
+    <span style="color:#B12704; font-size:22px; font-weight:600;">
+      {{ product.price | money }}
+    </span>
+  </div>
+
+  {{ product.description }}
+
+</div>
+
+<script>
+function selectColor(colorName, button) {
+  colorName = (colorName || '').toLowerCase();
+
+  document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+  button.classList.add('active');
+
+  document.querySelectorAll('#thumbs img').forEach(img => {
+    const alt = (img.dataset.alt || '').toLowerCase();
+    img.style.display = alt.includes(colorName) ? 'block' : 'none';
+  });
+
+  const firstMatch = [...document.querySelectorAll('#thumbs img')]
+    .find(img => (img.dataset.alt || '').toLowerCase().includes(colorName));
+
+  if (firstMatch) {
+    document.getElementById('mainImage').src = firstMatch.src;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const firstBtn = document.querySelector('.color-btn');
+  if (firstBtn) firstBtn.click();
+});
+</script>
